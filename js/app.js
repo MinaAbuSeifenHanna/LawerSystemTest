@@ -33,11 +33,16 @@ export function initApp(onUserAuthenticated) {
         },
         // On Logout
         () => {
-            // Redirect to login if not already there
-            if (!window.location.pathname.endsWith('login.html') && window.location.pathname !== '/') {
-                window.location.replace('login.html');
+            const isAtRoot = window.location.pathname.endsWith('index.html') || window.location.pathname.endsWith('/');
+            const isOnLoginPage = window.location.pathname.endsWith('login.html');
+
+            if (!isOnLoginPage) {
+                // If we are at root (index.html), we need to go to 'pages/login.html'
+                // If we are already in 'pages/', we just go to 'login.html'
+                const redirectPath = isAtRoot ? 'pages/login.html' : 'login.html';
+                window.location.replace(redirectPath);
             } else {
-                // If on login page, just show the page
+                // If already on login page, just show the page
                 document.body.style.visibility = 'visible';
                 document.body.style.opacity = '1';
                 hideSpinner();

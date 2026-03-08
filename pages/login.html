@@ -49,6 +49,12 @@
                             <a href="#" class="text-decoration-none text-muted small">نسيت كلمة المرور؟</a>
                         </div>
                         <button type="submit" class="btn btn-primary w-100 mb-2">دخول</button>
+                        <div class="text-center mt-3">
+                            <span class="text-muted small">ليس لديك حساب؟</span>
+                            <a href="javascript:void(0)"
+                                onclick="bootstrap.Tab.getOrCreateInstance(document.getElementById('register-tab')).show()"
+                                class="text-decoration-none small">إنشاء حساب جديد</a>
+                        </div>
                     </form>
                 </div>
                 <div class="tab-pane fade" id="registerPane" role="tabpanel">
@@ -84,6 +90,12 @@
                             </div>
                         </div>
                         <button type="submit" class="btn btn-primary w-100 mb-2">إنشاء حساب</button>
+                        <div class="text-center mt-3">
+                            <span class="text-muted small">لديك حساب بالفعل؟</span>
+                            <a href="javascript:void(0)"
+                                onclick="bootstrap.Tab.getOrCreateInstance(document.getElementById('login-tab')).show()"
+                                class="text-decoration-none small">تسجيل الدخول</a>
+                        </div>
                     </form>
                 </div>
             </div>
@@ -122,6 +134,16 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             showSpinner(); // show loading while checking auth state
+
+            // Handle tab switching from URL parameter
+            const urlParams = new URLSearchParams(window.location.search);
+            const tab = urlParams.get('tab');
+            if (tab === 'register') {
+                const registerTab = document.getElementById('register-tab');
+                if (registerTab) {
+                    bootstrap.Tab.getOrCreateInstance(registerTab).show();
+                }
+            }
 
             document.getElementById('loginForm').addEventListener('submit', async (e) => {
                 e.preventDefault();

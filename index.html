@@ -108,6 +108,9 @@
     <!-- PDF Generation Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+    <!-- Arabic Reshaper and RTL Support -->
+    <script src="https://cdn.jsdelivr.net/npm/arabic-reshaper/dist/index.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/js-arabic/dist/index.min.js"></script>
 
     <script type="module">
         import { setupAuthListener, logout } from './js/auth.js';
@@ -142,9 +145,6 @@
 
                 // Initialize Router
                 initRouter();
-            } else {
-                // If not logged in, redirect to login page (which is still a separate MPA page for now or we can make it part of SPA too)
-                window.location.replace('pages/login.html');
             }
         });
     </script>

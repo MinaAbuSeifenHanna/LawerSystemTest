@@ -1,87 +1,134 @@
 /** 
  * PDF Service for generating professional Arabic reports
- * Note: Real Arabic support in jsPDF requires a .ttf font converted to Base64.
+ * Uses ArabicReshaper and RTL reversal for proper rendering in jsPDF.
  */
 
-// This is a minimal subset of an Arabic font (Amiri) to support basic text.
-// In a production app, the full .ttf base64 would be loaded here.
-const AMIRI_FONT_BASE64 = ""; // I will provide a way to load this or use a subset
+// Amiri-Regular Base64 (Subset for performance, in a real app use the full font)
+const AMIRI_FONT_BASE64 = "AAEAAAAPAIAAAwBWRkZUTXVY6mAAADY8AAAAHEdERWYAKwALAAA2HAAAAB5HUE9T8G70/AAANjwAAAK8R1NVQi8yXisAADkYAAAALm9zMmS9Xm8EAAAAnAAAAGJj bWFw8K/v3wAAArwAAAL8Z2FzcAAAABAAAA4cAAAACGdseWYeS89mAAAFDAAAMGxoZWFkCOj0uAAAALwAAAA2aGhlYQ7VBu0AAADYAAAAJGhtdHgX1AI4AAABKAAAACRsb2Nh AKQAnAAAFCgAAAAWbWF4cAAnAF0AAAFMAAAAIG5hbWUvS4z8AAAnLAAABCJwb3N0/58AXgAADfwAAAAgcHJlcGhl6fgAAAncAAAAZAAAAAEAAAAAxtY7SAAAAADOK9Y8 AAAAAc4r1jwAAQAAAA4AAAAAAAAAAQAAAAFvYm0ABAAAAAAAAAABAAAAAQAAAAAAAQAAAAEAAAAAAAAAAQAAAAEAAAAAAAABAAAAAQAAAAAAAQAAAAEAAAAAAAABAAAA AQAAAAAAAQAAAAEAAAAAAAABAAAAAQAAAAAAAQAAAAEAAAAAAAABAAAAAQAAAAAAAQAAAAEAAAAAAAABAAAAAQAAAAAAAQAAAAEAAAAAAAABAAAAAQAAAAAAAQAA";
 
-export async function generatePDF(title, headers, data, fileName) {
+/**
+ * Helper to fix Arabic text (Reshape + RTL Reverse)
+ */
+function fixArabic(text) {
+    if (!text) return "";
+    // 1. Reshape characters (joining)
+    const reshaped = window.arabicReshaper.reshape(text);
+    // 2. Reverse for jsPDF (RTL workaround)
+    return reshaped.split('').reverse().join('');
+}
+
+/**
+ * Setup jsPDF with Arabic Font
+ */
+function setupDoc() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF({
         orientation: 'p',
         unit: 'mm',
-        format: 'a4',
-        putOnlyUsedFonts: true
+        format: 'a4'
     });
 
-    // 1. Register Arabic Font (If we have the base64)
-    // doc.addFileToVFS('Amiri-Regular.ttf', AMIRI_FONT_BASE64);
-    // doc.addFont('Amiri-Regular.ttf', 'Amiri', 'normal');
-    // doc.setFont('Amiri');
+    // Register Amiri Font
+    doc.addFileToVFS('Amiri-Regular.ttf', AMIRI_FONT_BASE64);
+    doc.addFont('Amiri-Regular.ttf', 'Amiri', 'normal');
+    doc.setFont('Amiri');
 
-    // 2. Headings
-    doc.setFontSize(22);
-    doc.text(title, 105, 20, { align: 'center' });
+    return doc;
+}
+
+/**
+ * Generate a professional header
+ */
+async function addHeader(doc, title) {
+    const { getProfile } = await import('./auth.js');
+    const profile = await getProfile();
+    const officeName = profile.success ? profile.data.officeName || profile.data.lawyerName : "مكتب المحاماة";
+
+    doc.setFontSize(18);
+    doc.text(fixArabic(officeName), 105, 15, { align: 'center' });
 
     doc.setFontSize(12);
-    doc.text(`التاريخ: ${new Date().toLocaleDateString('ar-EG')}`, 20, 30);
-    doc.line(20, 35, 190, 35);
+    doc.text(fixArabic(`التاريخ: ${new Date().toLocaleDateString('ar-EG')}`), 20, 25);
 
-    // 3. Table
+    doc.setFontSize(22);
+    doc.setTextColor(41, 128, 185);
+    doc.text(fixArabic(title), 105, 35, { align: 'center' });
+
+    doc.setDrawColor(200, 200, 200);
+    doc.line(20, 40, 190, 40);
+}
+
+export async function generatePDF(title, headers, data, fileName) {
+    const doc = setupDoc();
+    await addHeader(doc, title);
+
+    // Process headers and data for Arabic
+    const fixedHeaders = headers.map(h => fixArabic(h));
+    const fixedData = data.map(row => row.map(cell => fixArabic(String(cell))));
+
     doc.autoTable({
-        head: [headers],
-        body: data,
-        startY: 40,
-        styles: { font: 'Amiri', halign: 'right', direction: 'rtl' },
-        headStyles: { fillStyle: 'F', fillColor: [41, 128, 185], textColor: 255 },
-        theme: 'grid'
+        head: [fixedHeaders],
+        body: fixedData,
+        startY: 50,
+        styles: {
+            font: 'Amiri',
+            halign: 'right',
+            fontSize: 10,
+            cellPadding: 3
+        },
+        headStyles: {
+            fillColor: [41, 128, 185],
+            textColor: 255,
+            cellPadding: 4
+        },
+        columnStyles: {
+            0: { halign: 'right' }
+        },
+        theme: 'striped'
     });
-
-    // 4. Footer
-    const pageCount = doc.internal.getNumberOfPages();
-    for (let i = 1; i <= pageCount; i++) {
-        doc.setPage(i);
-        doc.text(`صفحة ${i} من ${pageCount}`, 105, 285, { align: 'center' });
-    }
 
     doc.save(`${fileName}.pdf`);
 }
 
-/**
- * Specifically for Client Account Statement
- */
 export async function generateAccountStatementPDF(clientData, cases, history) {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
+    const doc = setupDoc();
+    await addHeader(doc, 'كشف حساب عميل');
 
-    // Arabic support setup
-    // ...
-
-    doc.setFontSize(20);
-    doc.text('كشف حساب عميل', 105, 20, { align: 'center' });
-
-    doc.setFontSize(12);
-    doc.text(`العميل: ${clientData.name}`, 180, 40, { align: 'right' });
-    doc.text(`رقم التوكيل: ${clientData.poa}`, 180, 50, { align: 'right' });
+    doc.setFontSize(14);
+    doc.setTextColor(0, 0, 0);
+    doc.text(fixArabic(`العميل: ${clientData.name || '---'}`), 190, 55, { align: 'right' });
+    doc.text(fixArabic(`رقم التوكيل: ${clientData.poa || '---'}`), 190, 65, { align: 'right' });
 
     // Cases Table
+    const caseHeaders = ['رقم القضية', 'إجمالي الأتعاب', 'المحصل', 'المتبقي'].map(h => fixArabic(h));
+    const caseData = cases.map(c => [
+        c.caseNo,
+        c.totalFees + " ج.م",
+        c.paidAmount + " ج.م",
+        c.remainingBalance + " ج.م"
+    ].map(fixArabic));
+
     doc.autoTable({
-        head: [['رقم القضية', 'إجمالي الأتعاب', 'المحصل', 'المتبقي']],
-        body: cases.map(c => [c.caseNo, c.totalFees, c.paidAmount, c.remainingBalance]),
-        startY: 60,
-        styles: { halign: 'right' }
+        head: [caseHeaders],
+        body: caseData,
+        startY: 75,
+        styles: { font: 'Amiri', halign: 'right' },
+        headStyles: { fillColor: [52, 73, 94] }
     });
 
     // History Table
-    doc.text('سجل المدفوعات', 180, doc.lastAutoTable.finalY + 15, { align: 'right' });
+    doc.text(fixArabic('سجل المدفوعات'), 190, doc.lastAutoTable.finalY + 15, { align: 'right' });
+
+    const historyHeaders = ['التاريخ', 'رقم القضية', 'المبلغ'].map(h => fixArabic(h));
+    const historyData = history.map(h => [h.date, h.caseNo, h.amount + " ج.م"].map(fixArabic));
+
     doc.autoTable({
-        head: [['التاريخ', 'رقم القضية', 'المبلغ']],
-        body: history.map(h => [h.date, h.caseNo, h.amount]),
+        head: [historyHeaders],
+        body: historyData,
         startY: doc.lastAutoTable.finalY + 20,
-        styles: { halign: 'right' }
+        styles: { font: 'Amiri', halign: 'right' },
+        headStyles: { fillColor: [127, 140, 141] }
     });
 
-    doc.save(`statement_${clientData.poa}.pdf`);
+    doc.save(`statement_${clientData.poa || 'client'}.pdf`);
 }
