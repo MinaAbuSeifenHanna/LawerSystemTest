@@ -1,0 +1,19 @@
+import{a as l,s as m}from"./auth-D1Y-1cw6.js";import{b as u,c as g,e as b,f as y,h as f}from"./db-services-Ds2mt6SM.js";import{s as p,a as o,h as w}from"./ui-utils-rfZbPk50.js";let i=[],d=null;document.getElementById("sidebarCollapse").addEventListener("click",()=>{document.getElementById("sidebar").classList.toggle("active")});document.getElementById("btnLogout").addEventListener("click",t=>{t.preventDefault(),l()});p();m(async(t,a)=>{t?(document.getElementById("lawyerName").innerText=a?.lawyerName||t.email,f(e=>{i=e,c(i),w()})):window.location.replace("login.html")},()=>{window.location.replace("login.html")});document.getElementById("addCaseForm").addEventListener("submit",async t=>{t.preventDefault();const a=new FormData(t.target),e=Object.fromEntries(a.entries());e.totalFees=parseFloat(e.totalFees)||0,e.paidAmount=parseFloat(e.paidAmount)||0;try{await u(e);const n=bootstrap.Modal.getInstance(document.getElementById("addCaseModal"));n&&n.hide(),t.target.reset(),o("success","تمت إضافة القضية بنجاح")}catch(n){o("error","خطأ: "+n.message)}});window.deleteCaseAction=async function(t){Swal.fire({title:"هل أنت متأكد؟",text:"لن تتمكن من استرجاع هذه القضية!",icon:"warning",showCancelButton:!0,confirmButtonColor:"#3085d6",cancelButtonColor:"#d33",confirmButtonText:"نعم، احذفها!",cancelButtonText:"إلغاء"}).then(async a=>{if(a.isConfirmed)try{await g(t),o("success","تم حذف القضية بنجاح")}catch(e){o("error","حدث خطأ أثناء الحذف: "+e.message)}})};window.viewCaseAction=function(t){document.getElementById("currentCaseId").value=t,d&&d(),d=b(t,e=>{const n=document.getElementById("caseHistoryBody");n.innerHTML="",e.length===0?n.innerHTML='<tr><td colspan="2" class="text-center">لا يوجد سجل جلسات بعد</td></tr>':e.forEach(s=>{n.innerHTML+=`
+                            <tr>
+                                <td>${s.hearingDate}</td>
+                                <td>${s.decision}</td>
+                            </tr>
+                        `})}),new bootstrap.Modal(document.getElementById("viewCaseModal")).show()};document.getElementById("addHistoryForm").addEventListener("submit",async t=>{t.preventDefault();const a=new FormData(t.target),e=a.get("caseId"),n={hearingDate:a.get("hearingDate"),decision:a.get("decision")};try{await y(e,n),t.target.reset(),document.getElementById("currentCaseId").value=e,o("success","تمت إضافة التحديث بنجاح")}catch(s){o("error","خطأ: "+s.message)}});document.getElementById("caseSearch").addEventListener("keyup",t=>{const a=t.target.value.toLowerCase(),e=i.filter(n=>n.caseNo&&n.caseNo.toString().includes(a)||n.defendant&&n.defendant.toLowerCase().includes(a));c(e)});function c(t){const a=document.getElementById("casesTableBody");a.innerHTML="",t.forEach(e=>{const s=e.remainingBalance>0?`<span class="badge bg-danger">${e.remainingBalance} ج.م</span>`:'<span class="badge bg-success">خالص</span>';let r="";e.status==="Active"?r='<span class="badge bg-primary">نشطة</span>':e.status==="Postponed"?r='<span class="badge bg-warning text-dark">مؤجلة</span>':e.status==="Closed"&&(r='<span class="badge bg-secondary">مغلقة</span>'),a.innerHTML+=`
+                    <tr>
+                        <td>${e.caseNo}</td>
+                        <td>${e.court||"---"}</td>
+                        <td>${e.defendant||"---"}</td>
+                        <td>${e.nextHearingDate||"لم يحدد"}</td>
+                        <td>${r}</td>
+                        <td>${s}</td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary" onclick="viewCaseAction('${e.id}')"><i class="fas fa-eye"></i></button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteCaseAction('${e.id}')"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `})}

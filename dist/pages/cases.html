@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>القضايا | نظام إدارة المحاماة</title>
+    <!-- Bootstrap 5 RTL CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- SweetAlert2 -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.5/dist/sweetalert2.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+  <script type="module" crossorigin src="/assets/cases-mzr1-pSx.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/auth-D1Y-1cw6.js">
+  <link rel="modulepreload" crossorigin href="/assets/db-services-Ds2mt6SM.js">
+  <link rel="modulepreload" crossorigin href="/assets/ui-utils-rfZbPk50.js">
+  <link rel="stylesheet" crossorigin href="/assets/auth-B_BwaTaa.css">
+</head>
+
+<body>
+    <div class="wrapper d-flex">
+        <!-- Sidebar -->
+        <nav id="sidebar">
+            <div class="sidebar-header d-flex align-items-center justify-content-between">
+                <h4 class="mb-0">مكتب المحاماة</h4>
+                <button type="button" id="sidebarCollapse" class="btn btn-link text-white d-md-none">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+
+            <ul class="list-unstyled components">
+                <li>
+                    <a href="dashboard.html">
+                        <i class="fas fa-home"></i> الرئيسية
+                    </a>
+                </li>
+                <li>
+                    <a href="clients.html">
+                        <i class="fas fa-users"></i> الموكلين
+                    </a>
+                </li>
+                <li class="active">
+                    <a href="cases.html">
+                        <i class="fas fa-gavel"></i> القضايا
+                    </a>
+                </li>
+                <li>
+                    <a href="#" id="btnLogout">
+                        <i class="fas fa-sign-out-alt"></i> تسجيل الخروج
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Page Content -->
+        <div id="content" class="w-100 p-4">
+            <header class="d-flex justify-content-between align-items-center mb-4">
+                <h2 id="sectionTitle">القضايا</h2>
+                <div id="userInfo" class="text-muted">
+                    <span id="lawyerName">مرحباً بك</span>
+                </div>
+            </header>
+
+            <!-- Cases Section -->
+            <div id="casesSection">
+                <div class="d-flex justify-content-between mb-3">
+                    <input type="text" id="caseSearch" class="form-control w-50" placeholder="بحث عن قضية...">
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCaseModal">
+                        <i class="fas fa-plus"></i> إضافة قضية جديدة
+                    </button>
+                </div>
+                <div class="card shadow">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>رقم القضية</th>
+                                    <th>المحكمة</th>
+                                    <th>الخصم</th>
+                                    <th>الجلسة القادمة</th>
+                                    <th>الحالة</th>
+                                    <th>المتبقي</th>
+                                    <th>الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody id="casesTableBody">
+                                <!-- Data will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Case Modal -->
+    <div class="modal fade" id="addCaseModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">إضافة قضية جديدة</h5>
+                    <button type="button" class="btn-close ms-0 me-auto" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addCaseForm">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">رقم القضية</label>
+                                <input type="text" class="form-control" name="caseNo" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">المحكمة</label>
+                                <input type="text" class="form-control" name="court">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">اسم الخصم</label>
+                                <input type="text" class="form-control" name="defendant">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">تاريخ أول جلسة</label>
+                                <input type="date" class="form-control" name="nextHearingDate">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">إجمالي الأتعاب</label>
+                                <input type="number" class="form-control" name="totalFees" value="0">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">المدفوع</label>
+                                <input type="number" class="form-control" name="paidAmount" value="0">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">حالة القضية</label>
+                                <select class="form-select" name="status">
+                                    <option value="Active">نشطة</option>
+                                    <option value="Postponed">مؤجلة</option>
+                                    <option value="Closed">مغلقة</option>
+                                </select>
+                            </div>
+                            <div class="col-md-12 mb-3">
+                                <label class="form-label">موجز القضية</label>
+                                <textarea class="form-control" name="brief"></textarea>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">حفظ القضية</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Case Modal (History) -->
+    <div class="modal fade" id="viewCaseModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">تفاصيل القضية وتحديثات الجلسات</h5>
+                    <button type="button" class="btn-close ms-0 me-auto" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-4">
+                        <h6>إضافة تحديث جديد لجلسة:</h6>
+                        <form id="addHistoryForm" class="d-flex gap-2">
+                            <input type="hidden" id="currentCaseId" name="caseId">
+                            <input type="date" class="form-control" name="hearingDate" required>
+                            <input type="text" class="form-control w-50" name="decision" placeholder="القرار / التحديث"
+                                required>
+                            <button type="submit" class="btn btn-primary">إضافة</button>
+                        </form>
+                    </div>
+                    <h6>سجل الجلسات (التاريخ الزمني):</h6>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-bordered">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>تاريخ الجلسة</th>
+                                    <th>القرار / التحديث</th>
+                                </tr>
+                            </thead>
+                            <tbody id="caseHistoryBody">
+                                <!-- Data loaded dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.5/dist/sweetalert2.all.min.js"></script>
+
+    <!-- App Logic -->
+</body>
+
+</html>

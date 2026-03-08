@@ -1,0 +1,169 @@
+<!-- Dashboard Section -->
+<div id="dashboardSection" class="p-0">
+    <!-- Profile Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-user"></i> بيانات المكتب والمحامي</h5>
+                    <button class="btn btn-light btn-sm" data-bs-toggle="modal" data-bs-target="#editProfileModal">
+                        <i class="fas fa-edit"></i> تعديل
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>اسم المحامي:</strong> <span id="profileLawyerName">-</span></p>
+                            <p><strong>اسم المكتب:</strong> <span id="profileOfficeName">-</span></p>
+                            <p><strong>الرقم الضريبي:</strong> <span id="profileTaxNumber">-</span></p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>رقم الكارنية:</strong> <span id="profileBarNumber">-</span></p>
+                            <p><strong>العنوان:</strong> <span id="profileAddress">-</span></p>
+                            <p><strong>البريد الإلكتروني:</strong> <span id="profileEmail">-</span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card bg-primary text-white p-3 shadow">
+                <h5>إجمالي الموكلين</h5>
+                <h2 id="totalClients">
+                    <div class="skeleton skeleton-text short mb-0 bg-white" style="opacity: 0.5;"></div>
+                </h2>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-success text-white p-3 shadow">
+                <h5>القضايا النشطة</h5>
+                <h2 id="activeCases">
+                    <div class="skeleton skeleton-text short mb-0 bg-white" style="opacity: 0.5;"></div>
+                </h2>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-danger text-white p-3 shadow" id="pendingFeesCard" style="cursor: pointer;"
+                onclick="showPendingFeesDetails()">
+                <h5>إجمالي الأتعاب المتبقية</h5>
+                <h2 id="totalPendingFees">
+                    <div class="skeleton skeleton-text short mb-0 bg-white" style="opacity: 0.5;"></div>
+                </h2>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow">
+        <div class="card-header bg-warning d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <h5 class="mb-0"><i class="fas fa-calendar-alt"></i> جلسات اليوم والقادمة (خلال 7 أيام)</h5>
+            <div class="input-group input-group-sm" style="width: 250px;">
+                <span class="input-group-text bg-white"><i class="fas fa-search text-muted"></i></span>
+                <input type="text" id="upcomingHearingsSearch" class="form-control" placeholder="بحث في الجلسات...">
+            </div>
+        </div>
+        <div class="table-responsive table-cards">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>رقم القضية</th>
+                        <th>المحكمة</th>
+                        <th>تاريخ الجلسة</th>
+                    </tr>
+                </thead>
+                <tbody id="upcomingHearingsBody">
+                    <!-- Skeleton Loaders -->
+                    <tr>
+                        <td>
+                            <div class="skeleton skeleton-text"></div>
+                        </td>
+                        <td>
+                            <div class="skeleton skeleton-text"></div>
+                        </td>
+                        <td>
+                            <div class="skeleton skeleton-text"></div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Profile Modal -->
+<div class="modal fade" id="editProfileModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-fullscreen-sm-down">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">تعديل بيانات المكتب والمحامي</h5>
+                <button type="button" class="btn-close ms-0 me-auto" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editProfileForm">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">اسم المحامي</label>
+                            <input type="text" class="form-control" name="lawyerName" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">اسم المكتب</label>
+                            <input type="text" class="form-control" name="officeName" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">الرقم الضريبي</label>
+                            <input type="text" class="form-control" name="taxNumber">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">رقم الكارنية</label>
+                            <input type="text" class="form-control" name="barNumber">
+                        </div>
+                        <div class="col-12 mb-3">
+                            <label class="form-label">العنوان</label>
+                            <textarea class="form-control" name="address" rows="3"></textarea>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">حفظ التغييرات</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Pending Fees Details Modal -->
+<div class="modal fade" id="pendingFeesModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-fullscreen-sm-down">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">تفاصيل الأتعاب المتبقية</h5>
+                <button type="button" class="btn-close ms-0 me-auto" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>رقم القضية</th>
+                                <th>اسم العميل</th>
+                                <th>رقم الموبايل</th>
+                                <th>المحكمة</th>
+                                <th>إجمالي الأتعاب</th>
+                                <th>المبلغ المدفوع</th>
+                                <th>المبلغ المتبقي</th>
+                                <th>الحالة</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pendingFeesTableBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إغلاق</button>
+            </div>
+        </div>
+    </div>
+</div>
